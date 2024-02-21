@@ -25,7 +25,11 @@ class VertexChat:
             system_prompt (str): system prompt
             user_message (str): user message
             example_input (str): example input
-            example_output (str): example output"""
+            example_output (str): example output
+
+        Returns:
+            prompt (str): formatted prompt for Gemini
+        """
         prompt = f"""{system_prompt}
         Message: '{example_input}'
         Label: {example_output}
@@ -60,6 +64,9 @@ class VertexChat:
             validation_error_label (str): validation error label
             response_blocked_error_label (str): response blocked error label
             max_retries (int): max number of retries
+
+        Returns:
+            label, completion_tokens, prompt_tokens (tuple[str, int, int])
         """
 
         class Label(BaseModel):

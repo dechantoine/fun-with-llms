@@ -103,7 +103,11 @@ async def generate(model: str, input_row: dict, max_retries: int = 0) -> dict:
 
 @logger.catch
 def prepare_jobs() -> list[dict[str, list[Coroutine]]]:
-    """Prepare jobs for parallel computing."""
+    """Prepare jobs for parallel computing.
+
+    Returns:
+        interleaved_jobs (list[dict[str, list[Coroutine]]]): list of dict(model_name: batch[jobs])
+    """
     # import data
     data = bq_client.query(f"SELECT * FROM {PROJECT_ID}.{DATASET_ID}.{task['SOURCE_TABLE']}").to_dataframe()
     logger.info(f"Loaded {len(data)} rows to predict from BigQuery.")
