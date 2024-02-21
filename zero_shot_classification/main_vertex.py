@@ -14,9 +14,8 @@ from llm_providers.vertex_models import VertexChat
 PROJECT_ID = os.environ.get('PROJECT_ID')
 DATASET_ID = os.environ.get('DATASET_ID')
 TASK_ID = os.environ.get('TASK_ID')
-
-MAX_RETRIES = 0
-BATCH_SIZE = 100
+BQ_BATCH_SIZE = os.environ.get('BQ_BATCH_SIZE', 100)
+MAX_RETRIES = os.environ.get('MAX_RETRIES', 0)
 
 task = json.load(open("tasks/tasks.json", "r"))[TASK_ID]
 
@@ -124,7 +123,7 @@ def prepare_jobs() -> list[dict[str, list[Coroutine]]]:
             model_jobs.append(generate(model, row, MAX_RETRIES))
 
         # split into batches
-        jobs.append(deque(ichunked(model_jobs, BATCH_SIZE)))
+        jobs.append(deque(ichunked(model_jobs, BQ_BATCH_SIZE)))
 
     # return list of dict(model_name: batch[jobs])
     interleaved_jobs = []
@@ -162,7 +161,7 @@ async def main(model_jobs: dict[str, list[asyncio.Task]]) -> None:
 
 if __name__ == '__main__':
     init_tables()
-    logger.info(f"Batch size for parallel computing: {BATCH_SIZE}")
+    logger.info(f"Batch size for parallel computing: {BQ_BATCH_SIZE}")
     jobs = prepare_jobs()
     # run each batch
     for i, job in enumerate(jobs):
