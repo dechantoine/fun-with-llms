@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "fun-with-llms"
+version = "0.1.0"
+description = ""
+authors = ["Antoine Déchappe <dechantoine@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+jupyter = "^1.0.0"
+transformers = "^4.37.2"
+torch = "^2.2.0"
+pydantic = "^2.6.1"
+loguru = "^0.7.2"
+google-cloud-aiplatform = "^1.42.1"
+more-itertools = "^10.2.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
