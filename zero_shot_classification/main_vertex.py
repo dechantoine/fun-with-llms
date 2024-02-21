@@ -33,7 +33,7 @@ bq_client = bigquery.Client(project=PROJECT_ID)
 
 vertex_model = VertexChat()
 
-ListInterleavedJobs = list[dict[str, list[asyncio.Task]]]
+ListInterleavedJobs = list[dict[str, list[Coroutine]]]
 
 
 @logger.catch
@@ -76,6 +76,9 @@ async def generate(model: str, input_row: dict, max_retries: int = 0) -> dict:
         model (str): model name
         input_row (dict): row to predict
         max_retries (int): max number of retries
+
+    Returns:
+        insert_row (dict): row record to insert into BQ
     """
     label, completion_tokens, prompt_tokens = vertex_model.generate(
         model=model,
@@ -102,7 +105,7 @@ async def generate(model: str, input_row: dict, max_retries: int = 0) -> dict:
 
 
 @logger.catch
-def prepare_jobs() -> list[dict[str, list[Coroutine]]]:
+def prepare_jobs() -> ListInterleavedJobs:
     """Prepare jobs for parallel computing.
 
     Returns:
@@ -114,7 +117,7 @@ def prepare_jobs() -> list[dict[str, list[Coroutine]]]:
 
     jobs = []
 
-    for i, model in enumerate(models):
+    for model in models:
         model_name = clean_model_name(model)
         table_id = f"{PROJECT_ID}.{DATASET_ID}.{model_name}_{TASK_ID}"
         predicted_data = bq_client.query(f"SELECT {task['ID_COLUMN_NAME']} FROM {table_id}").to_dataframe()
@@ -145,7 +148,7 @@ def prepare_jobs() -> list[dict[str, list[Coroutine]]]:
 
 
 @logger.catch
-async def main(model_jobs: dict[str, list[asyncio.Task]]) -> None:
+async def main(model_jobs: dict[str, list[Coroutine]]) -> None:
     """Run all jobs for a given batch.
 
     Args:
