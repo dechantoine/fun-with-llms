@@ -5,7 +5,7 @@ from vertexai.generative_models import GenerativeModel, GenerationConfig, Respon
 from vertexai.language_models import ChatModel, InputOutputTextPair
 import vertexai
 from pydantic import BaseModel, ValidationError
-from zero_shot_classification.mixin import format_preprompt
+from zero_shot_classification.mixin import format_preprompt, format_example_output
 
 from loguru import logger
 
@@ -84,7 +84,9 @@ class VertexChat:
                     system_prompt=format_preprompt(preprompt, labels),
                     user_message=prompt,
                     example_input=example_input,
-                    example_output=example_output
+                    example_output=format_example_output(example_output=example_output,
+                                                         labels=labels,
+                                                         predict_labels_index=predict_labels_index),
                 )
 
                 chat = model.start_chat()
@@ -110,7 +112,9 @@ class VertexChat:
                     examples=[
                         InputOutputTextPair(
                             input_text=example_input,
-                            output_text=example_output,
+                            output_text=format_example_output(example_output=example_output,
+                                                              labels=labels,
+                                                              predict_labels_index=predict_labels_index),
                         ),
                     ],
                 )

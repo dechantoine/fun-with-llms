@@ -20,3 +20,15 @@ def clean_model_name(model_name: str) -> str:
         model_name (str): model name
     """
     return re.sub(pattern=r'[-@/.]', repl='_', string=model_name)
+
+
+def format_example_output(example_output: str, predict_labels_index: bool, labels: list[str]) -> str:
+    """Format example output for the model.
+    Args:
+        example_output (str): example output
+        predict_labels_index (bool): whether the model must predict labels index (less costly)
+        labels (list[str]): list of possible labels
+    """
+    if predict_labels_index:
+        return str(labels.index(example_output) + 1)
+    return example_output

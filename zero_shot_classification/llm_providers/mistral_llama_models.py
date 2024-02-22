@@ -7,7 +7,7 @@ from loguru import logger
 
 from huggingface_hub import hf_hub_download
 
-from zero_shot_classification.mixin import format_preprompt
+from zero_shot_classification.mixin import format_preprompt, format_example_output
 
 SYSTEM_PROMPT_MISTRAL = """<s>[INST] {system_prompt}
 ---------
@@ -112,7 +112,9 @@ class LocalMistral:
                                                                          labels=labels,
                                                                          with_index=predict_labels_index),
                                           example_input=example_input,
-                                          example_output=example_output,
+                                          example_output=format_example_output(example_output=example_output,
+                                                                               labels=labels,
+                                                                               predict_labels_index=predict_labels_index),
                                           prompt=prompt)
 
         max_tokens = len(str(len(labels)))+1 if predict_labels_index else max([len(label) for label in labels])/2
