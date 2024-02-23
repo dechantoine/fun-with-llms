@@ -11,8 +11,11 @@ from zero_shot_classification.mixin import format_preprompt, format_example_outp
 
 SYSTEM_PROMPT_GEMMA = """<start_of_turn>user
 {system_prompt}
+---------
+Example:
 Message: '{example_input}'
 Response: {example_output}
+---------
 Message: '{prompt}'<end_of_turn>
 <start_of_turn>model
 Response :"""
@@ -39,7 +42,7 @@ class LocalGemma:
             model_path=os.path.join("temp", model_paths[2]),
             n_ctx=2048,
             # The max sequence length to use - note that longer sequence lengths require much more resources
-            n_threads=1,
+            n_threads=4,
             # The number of CPU threads to use, tailor to your system and the resulting performance
             n_gpu_layers=-1,
             # The number of layers to offload to GPU, if you have GPU acceleration available
@@ -116,13 +119,11 @@ class LocalGemma:
                                                                                predict_labels_index=predict_labels_index),
                                           prompt=prompt)
 
-        logger.debug(f"Query: {query}")
-
         max_tokens = len(str(len(labels))) + 1 if predict_labels_index else max([len(label) for label in labels]) / 2
 
         response = self.model(query,
                               temperature=0.0,
-                              # max_tokens=max_tokens,
+                              max_tokens=max_tokens,
                               stop=["<end_of_turn>"],
                               # logit_bias=logit_bias,
                               echo=False)
@@ -141,6 +142,11 @@ class LocalGemma:
 
         except IndexError:
             logger.warning(f'Index error: {response_text} is not a valid label index.')
+            label = validation_error_label
+
+
+        except ValueError:
+            logger.warning(f'Value error: {response_text} does not contain any index.')
             label = validation_error_label
 
 
